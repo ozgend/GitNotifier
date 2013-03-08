@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitNotifier", "GitNotifier\GitNotifier.csproj", "{300090E3-489F-4A1A-BFE0-864DEF6753C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GitNotifierClient", "GitNotifierClient\GitNotifierClient.csproj", "{FCD3E6A3-0BAB-47F6-B228-974EE58BC3C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{300090E3-489F-4A1A-BFE0-864DEF6753C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{300090E3-489F-4A1A-BFE0-864DEF6753C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{300090E3-489F-4A1A-BFE0-864DEF6753C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{300090E3-489F-4A1A-BFE0-864DEF6753C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCD3E6A3-0BAB-47F6-B228-974EE58BC3C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCD3E6A3-0BAB-47F6-B228-974EE58BC3C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCD3E6A3-0BAB-47F6-B228-974EE58BC3C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCD3E6A3-0BAB-47F6-B228-974EE58BC3C0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
