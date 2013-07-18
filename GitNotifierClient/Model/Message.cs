@@ -11,10 +11,19 @@ namespace denolk.GitNotifierClient.Model
         public string Date { get; set; }
         public string Repository { get; set; }
         public string Url { get; set; }
+        public bool IsLocal { get; set; }
+        public string Text { get; set; }
 
         public override string ToString()
         {
-            return string.Format("[{0}] pushed on [{1}] at {2}", Author, Repository, Date);
+            if (IsLocal)
+            {
+                return string.Format("{0} {1}", Text, Url);
+            }
+            else
+            {
+                return string.Format("[{0}] pushed on [{1}] at {2}", Author, Repository, Date);
+            }
         }
 
     }

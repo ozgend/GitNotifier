@@ -1,6 +1,7 @@
 ﻿using denolk.GitNotifierClient.Model;
 using GitNotifierClient.Helper;
 using GitNotifierClient.View;
+using Microsoft.AspNet.SignalR.Client;
 using Microsoft.AspNet.SignalR.Client.Hubs;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,16 +22,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace GitNotifierClient
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+
     public partial class MainWindow : Window
     {
 
-        ObservableCollection<string> listSource = new ObservableCollection<string>();
+        private ObservableCollection<string> _listSource = new ObservableCollection<string>();
+        private HubConnection _connection;
+        private string _serviceUrl = Config.GetServiceLocation();
 
         public MainWindow()
         {
@@ -38,35 +41,60 @@ namespace GitNotifierClient
 
         private void Panel_Loaded(object sender, RoutedEventArgs e)
         {
-            Start();
+            listNotifications.ItemsSource = _listSource;
+            ConnectToHub();
+            NetworkChange.NetworkAvailabilityChanged += new NetworkAvailabilityChangedEventHandler(NetworkAvailabilityChanged);
         }
 
-        private void Start()
+        private void ConnectToHub()
         {
-            listNotifications.ItemsSource = listSource;
-            Task.Factory.StartNew(() => Connect());
+            Task.Factory.StartNew(() => _ConnectToHub());
         }
 
-        private void Connect()
+        private void _ConnectToHub()
         {
-            string serviceUrl = Config.GetServiceLocation();
-            var connection = new HubConnection(serviceUrl);
-            connection.Credentials = CredentialCache.DefaultNetworkCredentials;
-            IHubProxy chat = connection.CreateHubProxy("ClientNotificationHub");
+            if (_connection != null)
+            {
+                _connection.Disconnect();
+                _connection = null;
+            }
+            _connection = new HubConnection(_serviceUrl);
+            _connection.Credentials = CredentialCache.DefaultNetworkCredentials;
+            _connection.StateChanged += new Action<Microsoft.AspNet.SignalR.Client.StateChange>(HubConnectionStateChanged);
+            IHubProxy chat = _connection.CreateHubProxy("ClientNotificationHub");
             chat.On<Message>("Send", MessageReceived);
-            connection.Start().Wait();
+            _connection.Start().Wait();
         }
 
+        private void NetworkAvailabilityChanged(object sender, NetworkAvailabilityEventArgs e)
+        {
+            if (e.IsAvailable)
+            {
+                ConnectToHub();
+            }
+            else
+            {
+                var message = new Message { Text = "Connection lost with service", Url = _serviceUrl, IsLocal = true };
+                CreateNotificationFromMainDispatcher(message);
+            }
+        }
+
+        private void HubConnectionStateChanged(StateChange state)
+        {
+            Debug.WriteLine("HubConnectionStateChanged Old={0}  New={1}", state.OldState, state.NewState);
+
+            if (state.NewState == ConnectionState.Connected)
+            {
+                var message = new Message { Text = "Connected to service", Url = _serviceUrl, IsLocal = true };
+                CreateNotificationFromMainDispatcher(message);
+            }
+        }
 
         private void MessageReceived(Message message)
         {
             try
             {
-                listNotifications.Dispatcher.BeginInvoke(new Action(delegate()
-                {
-                    CreateNotification(message);
-                }));
-
+                CreateNotificationFromDispatcher(message);
             }
             catch (Exception ex)
             {
@@ -75,15 +103,33 @@ namespace GitNotifierClient
             }
         }
 
-        private void CreateNotification(Message message)
+        private void CreateNotificationFromMainDispatcher(Message message)
         {
-            listSource.Insert(0, message.ToString());
+            Application.Current.Dispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate()
+            {
+                _CreateNotification(message);
+            });
+        }
+
+        private void CreateNotificationFromDispatcher(Message message)
+        {
+            listNotifications.Dispatcher.BeginInvoke(new Action(delegate()
+            {
+                _CreateNotification(message);
+            }));
+        }
+
+        private void _CreateNotification(Message message)
+        {
+            _listSource.Insert(0, message.ToString());
 
             BalloonBox balloon = new BalloonBox();
-            balloon.BalloonText = "GitHub Notification";
+            balloon.BalloonText = "GitHub Notifier";
             balloon.BalloonMessage = message.ToString();
-            balloon.AdditionalClickEvent = new Task(() => Process.Start(message.Url));
-
+            if (!string.IsNullOrEmpty(message.Url) && !message.IsLocal)
+            {
+                balloon.AdditionalClickEvent = new Task(() => Process.Start(message.Url));
+            }
             DNotificationIcon.ShowCustomBalloon(balloon, PopupAnimation.Slide, 6000);
 
         }

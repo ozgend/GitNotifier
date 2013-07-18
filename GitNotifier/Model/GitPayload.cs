@@ -50,10 +50,10 @@ namespace denolk.GitNotifier.Model
         {
             return new Message
             {
-                Author = this.commits[0].author.name,
+                Author = this.commits.Last().author.name,
                 Repository = this.repository.name,
-                Date = DateTime.Parse(this.commits[0].timestamp).ToString("dddd, hh:mm:ss"),
-                Url = this.commits[0].url
+                Date = DateTime.Parse(this.commits.Last().timestamp).ToString("dddd, hh:mm:ss"),
+                Url = this.commits.Last().url
             };
         }
 
