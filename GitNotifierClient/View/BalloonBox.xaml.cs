@@ -53,7 +53,6 @@ namespace GitNotifierClient.View
             set { SetValue(BalloonMessageProperty, value); }
         }
 
-        
         private void OnBalloonClosing(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
@@ -62,12 +61,12 @@ namespace GitNotifierClient.View
 
         private void grid_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (AdditionalClickEvent != null)
+            if (AdditionalClickEvent != null && e.RightButton != MouseButtonState.Pressed)
             {
                 AdditionalClickEvent.Start();
             }
             TaskbarIcon taskbarIcon = TaskbarIcon.GetParentTaskbarIcon(this);
-            taskbarIcon.CloseBalloon();            
+            taskbarIcon.CloseBalloon();
         }
 
         private void grid_MouseEnter(object sender, MouseEventArgs e)
@@ -77,7 +76,7 @@ namespace GitNotifierClient.View
             TaskbarIcon taskbarIcon = TaskbarIcon.GetParentTaskbarIcon(this);
             taskbarIcon.ResetBalloonCloseTimer();
         }
-        
+
         private void OnFadeOutCompleted(object sender, EventArgs e)
         {
             Popup pp = (Popup)Parent;

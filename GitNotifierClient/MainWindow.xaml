@@ -10,8 +10,9 @@
         <TextBlock TextAlignment="Center" VerticalAlignment="Center" DockPanel.Dock="Top" FontSize="14" ><Run Text="GitHub Notifier for Cronom repositories"/></TextBlock>
         <ListBox x:Name="listNotifications" ItemsSource="{Binding}" Visibility="Hidden"></ListBox>
 
-        <tb:TaskbarIcon IconSource="/Icons/appicon.ico" ToolTipText="GitHub Notifier" x:Name="DNotificationIcon" />
-        
+        <tb:TaskbarIcon IconSource="/Icons/appicon.ico" ToolTipText="GitHub Notifier" x:Name="DNotificationIcon" >
+        </tb:TaskbarIcon>
+
 
     </DockPanel>
 </Window>
